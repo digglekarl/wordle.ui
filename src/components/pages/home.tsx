@@ -4,7 +4,7 @@ function Home()
     const [data, setData] = useState<any[]>([]);
     const [mode, setMode] = useState('online')
     useEffect(() => {
-        let url = "http://localhost/users";
+        let url = "http://localhost:12859/api/Wordle";
         fetch(url).then((response) => {
             response.json().then((result) => {
                 console.warn(result);
