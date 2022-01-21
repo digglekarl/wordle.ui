@@ -1,21 +1,32 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import {Navbar, Container, Nav} from 'react-bootstrap';
+import Home from './components/pages/home';
+import About from './components/pages/about';
+import Users from './components/pages/users';
+import { Navbar, Nav } from 'react-bootstrap';
+import { Link, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
     <div className="App">
       <Navbar bg="primary" variant="dark">
-        <Container>
-          <Navbar.Brand href="#home">Navbar</Navbar.Brand>
-          <Nav className="me-auto">
-            <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link href="#features">Features</Nav.Link>
-            <Nav.Link href="#pricing">Pricing</Nav.Link>
-          </Nav>
-        </Container>
+        <Navbar.Brand href="#home">Navbar</Navbar.Brand>
+        <Nav className="me-auto">
+          <Link to='/'>Home</Link>
+          <Link to='/users'>Users</Link>
+          <Link to='/about'>About</Link>
+        </Nav>
+
       </Navbar>
+
+      
+
+
+      <Routes>
+        <Route path='/' element={<Home />} ></Route>
+        <Route path='/users' element={<Users />}></Route>
+        <Route path='/about' element={<About />}></Route>
+      </Routes>
     </div>
   );
 }
