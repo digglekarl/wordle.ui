@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-function Home()
-{
+
+function Home() {
     const [data, setData] = useState<any[]>([]);
     const [mode, setMode] = useState('online')
     useEffect(() => {
@@ -9,11 +9,11 @@ function Home()
             response.json().then((result) => {
                 console.warn(result);
                 setData(result);
-                localStorage.setItem("users", JSON.stringify(result));
+                localStorage.setItem("word", JSON.stringify(result));
             });
         }).catch(err => {
             setMode('offline');
-            let collection = localStorage.getItem("users");
+            let collection = localStorage.getItem("word");
             setData(JSON.parse(collection || '{}'));
         });
     }, []);
