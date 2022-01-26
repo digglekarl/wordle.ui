@@ -15,6 +15,115 @@
   color: #ddd;
 }
 
+#game{
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#row{
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  column-gap: 5px;
+}
+
+#board-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+#board {
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  row-gap: 5px;
+  padding: 10px;
+  box-sizing: border-box;  
+  width:350px;
+  height:420px;
+}
+
+#tile{
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  line-height: 2rem;
+  font-weight: bold;
+  vertical-align: middle;
+  box-sizing: border-box;
+  color: #ffffff;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+#tile[data-state='empty']{
+  border: 2px solid #d3d6da;
+}
+
+#tile[data-state='tbd']{
+  border: 2px solid #87818c;
+  color: #1a1a1b;
+  background-color: #ffffff;
+}
+
+#keyboard{
+  margin: 0 8px;
+  height: 200px;
+}
+
+#keyboard-row{
+  display: flex;
+  width: 100%;
+  margin:0 auto 8px;
+  touch-action: manipulation;
+}
+
+.keyboard-button{
+  font-family: inherit;
+  font-weight: bold;
+  border: 0;
+  padding: 0;
+  margin: 0 6px 0 0;
+  height: 58px;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  background-color: #d3d6da;
+  color: #1a1a1b;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+}
+
+.one-and-half {
+  flex: 1.5;
+  font-size: 12px;
+}
+
+.correct{
+  background-color: forestgreen;
+  color: whitesmoke;
+}
+
+.present{
+  background-color: coral;
+  color: whitesmoke;
+}
+
+.absent{
+  background-color: darkgrey;
+  color: whitesmoke;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
