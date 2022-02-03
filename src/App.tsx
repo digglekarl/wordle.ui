@@ -3,6 +3,9 @@ import './App.css';
 import Home from './components/pages/home';
 import About from './components/pages/about';
 import Users from './components/pages/users';
+import GameApp from './components/pages/game';
+import GameState from './components/pages/game';
+
 import { Navbar, Nav } from 'react-bootstrap';
 import { Routes, Route, Link, NavLink  } from 'react-router-dom';
 
@@ -21,7 +24,7 @@ function App() {
       </Navbar>
 
       <Routes>
-        <Route path='/' element={<Home />} ></Route>
+        <Route path='/' element={<GameApp row={[]} rowIndex={0} currentIndex={0} letters={[]} />} ></Route>
         <Route path='/users' element={<Users />}></Route>
         <Route path='/about' element={<About />}></Route>
       </Routes>
