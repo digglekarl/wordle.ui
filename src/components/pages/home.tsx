@@ -9,8 +9,9 @@ function Home() {
     const [data, setData] = useState<any>([]);
     const [mode, setMode] = useState('online')
     useEffect(() => {
-        let url = "http://localhost:12859/api/Wordle";
-        fetch(url).then((response) => {
+        let url = "https://withered-dawn-8128.fly.dev/api/Wordle";
+        fetch(url, {mode: "no-cors"}).then((response) => {
+            console.log(response);
             response.text().then((result) => {
                 console.warn(result);
                 setData(result);

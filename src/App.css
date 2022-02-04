@@ -73,6 +73,24 @@
   background-color: #ffffff;
 }
 
+#tile[data-state='correct']{
+  border: 2px solid #87818c;
+  color: #ffffff;
+  background-color: forestgreen;
+}
+
+#tile[data-state='present']{
+  border: 2px solid #87818c;
+  color: #ffffff;
+  background-color: coral;
+}
+
+#tile[data-state='absent']{
+  border: 2px solid #87818c;
+  color: #ffffff;
+  background-color: darkgrey;
+}
+
 #keyboard{
   margin: 0 8px;
   height: 200px;

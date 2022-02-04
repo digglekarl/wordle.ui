@@ -1,10 +1,14 @@
-import React from 'react';
+import { stat } from "fs";
+import React, { useEffect, useState } from "react";
+import { ThemeProvider } from "react-bootstrap";
 
 export type GameState = {
     rowIndex: number,
     currentIndex: number,
     row: any[],
-    letters: string[]
+    letters: string[],
+    datastate: any[],
+    score: number
 }
 
 export default class GameApp extends React.Component<GameState> {
@@ -12,8 +16,30 @@ export default class GameApp extends React.Component<GameState> {
         rowIndex:0,
         row:[['','','','',''], ['','','','',''], ['','','','',''], ['','','','',''], ['','','','',''], ['','','','','']],
         currentIndex: 0,
-        letters: ['','','','','']
+        letters: ['','','','',''],
+        datastate: [['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd']],
+        score:0 
     };
+
+    componentDidMount() {
+        this.getNewWord();
+    }
+
+    getNewWord = () => {
+        // const [data, setData] = useState<any>([]);
+        // const [mode, setMode] = useState('online')
+        let url = "https://withered-dawn-8128.fly.dev/api/Wordle";
+        fetch(url).then((response) => {
+            response.text().then((result) => {
+                //setData(result);
+                localStorage.setItem("word", result);
+            });
+        }).catch(err => {
+            //setMode('offline');
+            //let collection = localStorage.getItem("word");
+            //setData(JSON.parse(collection || '{}'));
+        });
+    }
 
     getRowIndex = (): number => {
         return this.state.rowIndex;
@@ -36,9 +62,7 @@ export default class GameApp extends React.Component<GameState> {
             } 
         }
         else if (letter === 'enter'){
-            if (this.state.rowIndex < 6){
-                this.setState(state => ({rowIndex: this.getRowIndex()+1, currentIndex: 0, letters: ['','','','','']}));
-            }
+            this.handleSubmit();
         }
         else {
             if (this.state.currentIndex < 5)
@@ -48,9 +72,66 @@ export default class GameApp extends React.Component<GameState> {
                 this.state.row[this.state.rowIndex] = this.state.letters;
             }
         }
-
-        console.log(this.state);
     };
+
+    handleSubmit =() => {
+ 
+        if (this.state.currentIndex === 5)
+          {
+            let guess = this.state.row[this.state.rowIndex];
+            let word = localStorage.getItem("word");
+
+            (async () => {
+                const rawResponse = await fetch('https://withered-dawn-8128.fly.dev/api/Wordle', {
+                  method: 'POST',
+                  headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({word:word, guess:guess.join()})
+                });
+                const content = await rawResponse.json();
+              
+                let correct = true;
+
+                for (let i = 0; i < content.length; i++) {
+                    if (content[i].position === 1) {
+                        this.state.datastate[this.state.rowIndex][i] = 'correct';
+                        if (this.state.rowIndex === 0){
+                            this.state.score+=50;
+                        }
+                    }
+                    else if (content[i].position === 2) {
+                        this.state.datastate[this.state.rowIndex][i] = 'present';
+                        this.state.score+=10;
+                        correct = false;
+                    }
+                    else if (content[i].position === 3) {
+                        this.state.datastate[this.state.rowIndex][i] = 'absent';
+                        correct = false;
+                    }
+                }
+
+                this.setState(state => ({datastate: this.state.datastate, score: this.state.score}));
+
+                if (!correct){
+                    if (this.state.rowIndex < 6){
+                        this.setState(state => ({rowIndex: this.getRowIndex()+1, currentIndex: 0, letters: ['','','','','']}));
+                    }
+                }
+                else {
+                    this.state.score+=(1000/this.state.rowIndex);
+                    this.setState(state => ({score: Math.round(this.state.score)}));
+                    localStorage.setItem('score', Math.round(this.state.score).toString());
+
+                    this.setState(state => ({rowIndex: 0, currentIndex: 0, letters: ['','','','',''], row:[['','','','',''], ['','','','',''], ['','','','',''], ['','','','',''], ['','','','',''], ['','','','','']],datastate: [['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd'],['tbd', 'tbd', 'tbd', 'tbd', 'tbd']]}));
+                    this.getNewWord();
+                }
+              })();
+
+
+        }
+      }
 
     render() {
         
@@ -58,46 +139,46 @@ export default class GameApp extends React.Component<GameState> {
             <div id="board-container">
                 <div id="board">
                     <div id="row">
-                        <div id="tile" data-state="tbd">{this.state.row[0][0]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[0][1]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[0][2]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[0][3]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[0][4]}</div>
+                        <div id="tile" data-state={ this.state.datastate[0][0] }>{this.state.row[0][0]}</div>
+                        <div id="tile" data-state={ this.state.datastate[0][1] }>{this.state.row[0][1]}</div>
+                        <div id="tile" data-state={ this.state.datastate[0][2] }>{this.state.row[0][2]}</div>
+                        <div id="tile" data-state={ this.state.datastate[0][3] }>{this.state.row[0][3]}</div>
+                        <div id="tile" data-state={ this.state.datastate[0][4] }>{this.state.row[0][4]}</div>
                     </div>
                     <div id="row">
-                        <div id="tile" data-state="tbd">{this.state.row[1][0]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[1][1]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[1][2]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[1][3]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[1][4]}</div>
+                        <div id="tile" data-state={ this.state.datastate[1][0] }>{this.state.row[1][0]}</div>
+                        <div id="tile" data-state={ this.state.datastate[1][1] }>{this.state.row[1][1]}</div>
+                        <div id="tile" data-state={ this.state.datastate[1][2] }>{this.state.row[1][2]}</div>
+                        <div id="tile" data-state={ this.state.datastate[1][3] }>{this.state.row[1][3]}</div>
+                        <div id="tile" data-state={ this.state.datastate[1][4] }>{this.state.row[1][4]}</div>
                     </div>
                     <div id="row">
-                        <div id="tile" data-state="tbd">{this.state.row[2][0]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[2][1]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[2][2]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[2][3]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[2][4]}</div>
+                        <div id="tile" data-state={ this.state.datastate[2][0] }>{this.state.row[2][0]}</div>
+                        <div id="tile" data-state={ this.state.datastate[2][1] }>{this.state.row[2][1]}</div>
+                        <div id="tile" data-state={ this.state.datastate[2][2] }>{this.state.row[2][2]}</div>
+                        <div id="tile" data-state={ this.state.datastate[2][3] }>{this.state.row[2][3]}</div>
+                        <div id="tile" data-state={ this.state.datastate[2][4] }>{this.state.row[2][4]}</div>
                     </div>
                     <div id="row">
-                        <div id="tile" data-state="tbd">{this.state.row[3][0]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[3][1]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[3][2]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[3][3]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[3][4]}</div>
+                        <div id="tile" data-state={ this.state.datastate[3][0] }>{this.state.row[3][0]}</div>
+                        <div id="tile" data-state={ this.state.datastate[3][1] }>{this.state.row[3][1]}</div>
+                        <div id="tile" data-state={ this.state.datastate[3][2] }>{this.state.row[3][2]}</div>
+                        <div id="tile" data-state={ this.state.datastate[3][3] }>{this.state.row[3][3]}</div>
+                        <div id="tile" data-state={ this.state.datastate[3][4] }>{this.state.row[3][4]}</div>
                     </div>
                     <div id="row">
-                        <div id="tile" data-state="tbd">{this.state.row[4][0]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[4][1]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[4][2]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[4][3]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[4][4]}</div>
+                        <div id="tile" data-state={ this.state.datastate[4][0] }>{this.state.row[4][0]}</div>
+                        <div id="tile" data-state={ this.state.datastate[4][1] }>{this.state.row[4][1]}</div>
+                        <div id="tile" data-state={ this.state.datastate[4][2] }>{this.state.row[4][2]}</div>
+                        <div id="tile" data-state={ this.state.datastate[4][3] }>{this.state.row[4][3]}</div>
+                        <div id="tile" data-state={ this.state.datastate[4][4] }>{this.state.row[4][4]}</div>
                     </div>
                     <div id="row">
-                        <div id="tile" data-state="tbd">{this.state.row[5][0]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[5][1]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[5][2]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[5][3]}</div>
-                        <div id="tile" data-state="tbd">{this.state.row[5][4]}</div>
+                        <div id="tile" data-state={ this.state.datastate[5][0] }>{this.state.row[5][0]}</div>
+                        <div id="tile" data-state={ this.state.datastate[5][1] }>{this.state.row[5][1]}</div>
+                        <div id="tile" data-state={ this.state.datastate[5][2] }>{this.state.row[5][2]}</div>
+                        <div id="tile" data-state={ this.state.datastate[5][3] }>{this.state.row[5][3]}</div>
+                        <div id="tile" data-state={ this.state.datastate[5][4] }>{this.state.row[5][4]}</div>
                     </div>
                 </div>
             </div>
@@ -151,6 +232,7 @@ export default class GameApp extends React.Component<GameState> {
     }
 }
 
+
 // import React from 'react';
 // type GameProps = {
 //     letters: string[]
@@ -191,11 +273,11 @@ export default class GameApp extends React.Component<GameState> {
 //         //     <div id="board-container">
 //         //         <div id="board">
 //         //             <div id="row">
-//         //                 <div id="tile" data-state="tbd">{letterToDisplay}</div>
-//         //                 <div id="tile" data-state="tbd">{letterToDisplay}</div>
-//         //                 <div id="tile" data-state="tbd">{letterToDisplay}</div>
-//         //                 <div id="tile" data-state="tbd">{letterToDisplay}</div>
-//         //                 <div id="tile" data-state="tbd">{letterToDisplay}</div>
+//         //                 <div id="tile"  data-state={ this.state.datastate[0][0] }>{letterToDisplay}</div>
+//         //                 <div id="tile"  data-state={ this.state.datastate[0][0] }>{letterToDisplay}</div>
+//         //                 <div id="tile"  data-state={ this.state.datastate[0][0] }>{letterToDisplay}</div>
+//         //                 <div id="tile"  data-state={ this.state.datastate[0][0] }>{letterToDisplay}</div>
+//         //                 <div id="tile"  data-state={ this.state.datastate[0][0] }>{letterToDisplay}</div>
 //         //             </div>
 //         //         </div>
 //         //     </div>

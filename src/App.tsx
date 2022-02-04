@@ -24,7 +24,7 @@ function App() {
       </Navbar>
 
       <Routes>
-        <Route path='/' element={<GameApp row={[]} rowIndex={0} currentIndex={0} letters={[]} />} ></Route>
+        <Route path='/' element={<GameApp row={[]} rowIndex={0} currentIndex={0} letters={[]} datastate={[]} score={0} />} ></Route>
         <Route path='/users' element={<Users />}></Route>
         <Route path='/about' element={<About />}></Route>
       </Routes>
